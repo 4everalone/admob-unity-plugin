@@ -106,7 +106,7 @@ public class AdMobPlugin{
 			Log.d(AdMobPlugin.LOGTAG, "Initializing...");
 
 			AdMobPlugin.instance.activity	= UnityPlayer.currentActivity;
-			AdMobPlugin.instance.config		= new AdMobConfiguration(true, publisherId, isTesting, testDeviceIds, guessSelfDeviceId, size, orientation, horizontalPosition, verticalPosition);
+			AdMobPlugin.instance.config		= new AdMobConfiguration(publisherId, isTesting, testDeviceIds, guessSelfDeviceId, size, orientation, horizontalPosition, verticalPosition);
 
 			AdMobPlugin.instance.activity.runOnUiThread(AdMobPlugin.instance.CONF);
 
@@ -134,7 +134,7 @@ public class AdMobPlugin{
 
 		Log.d(AdMobPlugin.LOGTAG, "Reconfiguring... ");
 
-		this.config = new AdMobConfiguration(false, publisherId, isTesting, testDeviceIds, guessSelfDeviceId, size, orientation, horizontalPosition, verticalPosition);
+		this.config = new AdMobConfiguration(publisherId, isTesting, testDeviceIds, guessSelfDeviceId, size, orientation, horizontalPosition, verticalPosition);
 
 		this.activity.runOnUiThread(this.CONF);
 
@@ -166,7 +166,7 @@ public class AdMobPlugin{
 			this.layout.setOrientation(config.orientation);
 			this.layout.setGravity(config.gravity);
 
-			if (this.view == null || config.initializeAdView)
+			if (this.view == null)
 			{
 			   Log.d(AdMobPlugin.LOGTAG, "Creating new AdView...");
 

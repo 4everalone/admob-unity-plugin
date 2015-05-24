@@ -31,6 +31,7 @@ import com.google.ads.AdSize;
 
 class AdMobConfiguration{
 
+   final boolean initializeAdView;
 	final String	publisherId;
 	final boolean	isTesting;
 	final String[]	testDeviceIds;
@@ -41,6 +42,7 @@ class AdMobConfiguration{
 	final int		gravity;
 
 	AdMobConfiguration(
+	   boolean initializeAdView,
 		String publisherId,
 		boolean isTesting,
 		String[] testDeviceIds,
@@ -67,6 +69,7 @@ class AdMobConfiguration{
 			2: BOTTOM
 		 */
 	){
+	   this.initializeAdView = initializeAdView;
 		this.publisherId		= publisherId;
 		this.isTesting			= isTesting;
 		this.testDeviceIds		= testDeviceIds;

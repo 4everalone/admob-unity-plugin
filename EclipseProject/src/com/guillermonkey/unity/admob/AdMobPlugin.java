@@ -26,12 +26,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
-import com.google.ads.Ad;
-import com.google.ads.AdListener;
-import com.google.ads.AdRequest;
-import com.google.ads.AdRequest.ErrorCode;
-import com.google.ads.AdView;
-
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.unity3d.player.UnityPlayer;
 
 
@@ -47,7 +44,7 @@ public class AdMobPlugin{
 	private LinearLayout		layout;
 	private AdView				view;
 	private int					received;
-	private ErrorCode			lastError;
+	private int			lastError;
 
 	private Runnable CONF = new Runnable(){ @Override public void run(){ _conf(); } };
 	private Runnable SHOW = new Runnable(){ @Override public void run(){ _show(); } };
@@ -56,7 +53,7 @@ public class AdMobPlugin{
 	private AdListener AD_LISTENER = new AdListener(){
 
 		@Override
-		public void onReceiveAd(Ad ad){
+		public void onAdLoaded (){
 
 			received++;
 
@@ -64,29 +61,11 @@ public class AdMobPlugin{
 		}
 
 		@Override
-		public void onFailedToReceiveAd(Ad ad, ErrorCode errorCode){
+		public void onAdFailedToLoad (int errorCode){
 
 			Log.e(AdMobPlugin.LOGTAG, "Failed to receive ad: " + errorCode);
 
 			lastError = errorCode;
-		}
-
-		@Override
-		public void onPresentScreen(Ad ad){
-
-			//Log.d(AdMobPlugin.LOGTAG, "On present screen");
-		}
-
-		@Override
-		public void onDismissScreen(Ad ad){
-
-			//Log.d(AdMobPlugin.LOGTAG, "On dismiss screen");
-		}
-
-		@Override
-		public void onLeaveApplication(Ad ad){
-
-			//Log.d(AdMobPlugin.LOGTAG, "On leaving application");
 		}
 	};
 
@@ -169,8 +148,10 @@ public class AdMobPlugin{
 			if (this.view == null)
 			{
 			   Log.d(AdMobPlugin.LOGTAG, "Creating new AdView...");
-
-			   this.view = new AdView(activity, config.size, config.publisherId);
+			   
+			   this.view  = new AdView(activity);
+			   this.view .setAdSize(config.size);
+			   this.view .setAdUnitId(config.publisherId);
 			   
 	         Log.d(AdMobPlugin.LOGTAG, "Setting up ad listener...");
 
@@ -257,18 +238,18 @@ public class AdMobPlugin{
 		try{
 
 			// Create the ad request
-			AdRequest adRequest = new AdRequest();
+			AdRequest.Builder builder = new AdRequest.Builder();
 
 			if( this.config.isTesting ){
 
 				// Add this just to make sure that we are in test mode
-				adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
+			   builder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
 
 				Log.d(AdMobPlugin.LOGTAG, "Added dummy device ID: TEST_DEVICE_ID");
 
 				if(this.config.guessSelfDeviceId && this.config.selfDeviceId != null){
 
-					adRequest.addTestDevice(this.config.selfDeviceId);
+				   builder.addTestDevice(this.config.selfDeviceId);
 
 					Log.d(AdMobPlugin.LOGTAG, "Added self device ID: " + this.config.selfDeviceId);
 				}
@@ -277,7 +258,7 @@ public class AdMobPlugin{
 
 					for(String testDeviceId : this.config.testDeviceIds){
 
-						adRequest.addTestDevice(testDeviceId);
+					   builder.addTestDevice(testDeviceId);
 
 						Log.d(AdMobPlugin.LOGTAG, "Added test device ID: " + testDeviceId);
 					}
@@ -287,28 +268,44 @@ public class AdMobPlugin{
 
 					if(this.target.birthday != null){
 
-						adRequest.setBirthday(this.target.birthday);
+					   builder.setBirthday(this.target.birthday);
 					}
 
 					if(this.target.gender != null){
+					   int gender = AdRequest.GENDER_UNKNOWN;
+					   switch (this.target.gender)
+                  {
+                     case FEMALE:
+                        gender = AdRequest.GENDER_FEMALE;
+                        break;
 
-						adRequest.setGender(this.target.gender);
+                     case MALE:
+                        gender = AdRequest.GENDER_MALE;
+                        break;
+                        
+                        default:
+                           gender = AdRequest.GENDER_UNKNOWN;
+                  }
+					   builder.setGender(gender);
 					}
 
 					if(this.target.location != null){
 
-						adRequest.setLocation(this.target.location);
+					   builder.setLocation(this.target.location);
 					}
 
 					if(this.target.keywords != null){
 
-						adRequest.setKeywords(this.target.keywords);
+					   for (String keyword : this.target.keywords)
+					   {
+					      builder.addKeyword(keyword);
+					   }
 					}
 				}
 			}
 
 			// Load the ad
-			this.view.loadAd(adRequest);
+			this.view.loadAd(builder.build());
 
 			Log.i(AdMobPlugin.LOGTAG, "Ad request sent.");
 
@@ -322,22 +319,7 @@ public class AdMobPlugin{
 
 	public String getLastError(){
 
-		String error;
-
-		if(this.lastError == null){
-
-			//Log.d(AdMobPlugin.LOGTAG, "Last error: no error");
-
-			return(null);
-		}
-
-		error = this.lastError.toString();
-
-		Log.i(AdMobPlugin.LOGTAG, "Last error: " + error);
-
-		this.lastError = null;
-
-		return(error);
+		return String.valueOf(lastError);
 	}
 
 	public int getReceived(){

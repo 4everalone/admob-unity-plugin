@@ -26,7 +26,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 
-import com.google.ads.AdSize;
+import com.google.android.gms.ads.AdSize;
+
 
 
 class AdMobConfiguration{
@@ -81,9 +82,9 @@ class AdMobConfiguration{
 
 		switch(size){
 			case 0: return(AdSize.BANNER);
-			case 1: return(AdSize.IAB_MRECT);
-			case 2: return(AdSize.IAB_BANNER);
-			case 3: return(AdSize.IAB_LEADERBOARD);
+			case 1: return(AdSize.MEDIUM_RECTANGLE);
+			case 2: return(AdSize.FULL_BANNER);
+			case 3: return(AdSize.LEADERBOARD);
 			case 4: return(AdSize.SMART_BANNER);
 		}
 
